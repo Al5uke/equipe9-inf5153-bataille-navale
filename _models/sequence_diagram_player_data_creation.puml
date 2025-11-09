@@ -1,0 +1,21 @@
+@startuml
+title Diagramme de séquence Créer données joueur
+
+participant "Système de gestion des joueurs" as Systeme
+participant "Base de données" as BDD
+
+Systeme -> BDD : 1: Demander création d'un joueur
+activate BDD
+BDD -> BDD : 2: Créer entrée pour le joueur
+
+alt [Création réussie]
+    BDD --> Systeme : 3: Confirmation de la création
+    deactivate BDD
+    Systeme -> Systeme : 4: Afficher confirmation de création
+else
+    BDD --> Systeme : 5: Erreur de création
+    deactivate BDD
+    Systeme -> Systeme : 6: Afficher message d'erreur
+end
+
+@enduml
