@@ -1,0 +1,69 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam linetype ortho
+hide circle
+
+' ==== Couches ====
+package "ui.console" {
+  component "InterfaceConsole"
+}
+
+package "application" {
+  component "ServiceJeu"
+}
+
+package "domaine" {
+  component "Jeu"
+  component "Joueur"
+  component "Grille"
+  component "Cas"
+  component "Navire"
+  component "Statistiques"
+}
+
+package "ia (optionnelle)" {
+  interface "StrategieIA"
+  component "StrategieAleatoire"
+  component "StrategieCiblee"
+}
+
+package "persistance" {
+  database "SQLite (Base de données)" as DB
+  component "BaseDeDonnees\n(DAO/Repository)"
+}
+
+' ==== Dépendances entre couches ====
+"InterfaceConsole" --> "ServiceJeu" : commandes utilisateur
+"ServiceJeu" --> "Jeu" : orchestration des tours
+"ServiceJeu" --> "BaseDeDonnees\n(DAO/Repository)" : save/load
+"BaseDeDonnees\n(DAO/Repository)" --> DB : JDBC
+
+' domaine interne
+"Jeu" --> "Joueur" : joueur1 / joueur2
+"Joueur" --> "Grille"
+"Grille" --> "Cas"
+"Grille" --> "Navire"
+"Joueur" --> "Statistiques"
+
+' IA (si Joueur IA)
+"ServiceJeu" --> "StrategieIA" : choisir prochain tir
+"StrategieAleatoire" -up-|> "StrategieIA"
+"StrategieCiblee" -up-|> "StrategieIA"
+
+' ==== Notes GRASP (rappel concis) ====
+note right of "ServiceJeu"
+GRASP: Controller / Low Coupling\n
+Reçoit les commandes de l'UI,\appelle le domaine et la persistance.
+end note
+
+note right of "Grille"
+GRASP: Information Expert\n
+Connait cases & navires, calcule TOUCHE/COULE.
+end note
+
+note right of "BaseDeDonnees\n(DAO/Repository)"
+GRASP: Pure Fabrication / Indirection\n
+Isole la BD (SQLite) du domaine.
+end note
+
+@enduml
