@@ -1,0 +1,44 @@
+@startuml
+title Diagramme de composants
+package "Interface utilisateur" {
+  [Interface Joueur] as InterfaceJoueur
+}
+
+package "Logique du jeu" {
+  component [Jeu]
+  component [Joueur]
+  component [Grille]
+  component [Case]
+  component [Navire]
+}
+
+package "IA" {
+  component [IA (Stratégie)]
+}
+
+package "Statistiques" {
+  component [Gestion des statistiques]
+}
+
+package "Données" {
+  component [Base de données]
+}
+
+InterfaceJoueur --> Jeu : envoie les actions du joueur\n(lancer partie, tirer, placer navires)
+
+Jeu --> Joueur : gère les tours\net coordonne les actions
+Jeu --> [Gestion des statistiques] : met à jour les scores
+Jeu --> [IA (Stratégie)] : utilise pour\njouer automatiquement
+
+Joueur *--> Grille 
+
+Grille --> Case : contient plusieurs cases
+Grille --> Navire : gère le placement\ndes navires
+
+Case --> Navire : peut contenir\nun partie de navire
+
+[IA (Stratégie)] --> Grille : analyse pour\nchoisir les tirs
+
+[Gestion des statistiques] --> [Base de données] : enregistre et lit les\ndonnées des parties
+
+@enduml
