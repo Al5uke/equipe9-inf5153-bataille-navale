@@ -1,0 +1,96 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+hide circle
+
+' ==== Entités principales du jeu ====
+class Joueur {
+  - nom : String
+  - grille : Grille
+  - stats : Statistiques
+  + tirer(c : Coordonnee) : ResultatTir
+  + placerNavire(n : Navire, debut : Coordonnee, o : Orientation) : boolean
+}
+
+class Grille {
+  - cases : Cas[10][10]
+  - navires : List<Navire>
+  + peutPlacer(n : Navire, debut : Coordonnee, o : Orientation) : boolean
+  + placer(n : Navire, debut : Coordonnee, o : Orientation) : void
+  + tirer(c : Coordonnee) : ResultatTir
+  + tousNaviresCoules() : boolean
+}
+
+class Cas {
+  - position : Coordonnee
+  - estTouchee : boolean
+  - navire : Navire [0..1]
+}
+
+class Navire {
+  - type : TypeNavire
+  - longueur : int
+  - positions : List<Cas>
+  + estCoule() : boolean
+}
+
+class Jeu {
+  - joueur1 : Joueur
+  - joueur2 : Joueur
+  - tourActuel : Joueur
+  + demarrer(j1 : Joueur, j2 : Joueur) : void
+  + tirerSurAdversaire(c : Coordonnee) : ResultatTir
+  + estTerminee() : boolean
+}
+
+class Statistiques {
+  - victoires : int
+  - defaites : int
+  - tirsTotaux : int
+  - tirsReussis : int
+  + precision() : double
+}
+
+class Coordonnee {
+  - col : int
+  - lig : int
+}
+
+enum TypeNavire {
+  PORTE_AVION = 5
+  CROISEUR = 4
+  CONTRE_TORPILLEURS = 3
+  SOUS_MARIN = 3
+  TORPILLEUR = 2
+}
+
+enum ResultatTir {
+  DANS_LEAU
+  TOUCHE
+  COULE
+}
+
+' ==== Associations & multiplicités ====
+Jeu "1" o-- "2" Joueur : joueurs
+Joueur "1" o-- "1" Grille
+Joueur "1" o-- "1" Statistiques
+Grille "1" *-- "100" Cas
+Grille "1" *-- "0..5" Navire
+Navire "1" o-- "2..5" Cas
+
+' ==== Notes explicatives ====
+note right of Grille
+Information Expert : connaît les cases et les navires,
+calcule les résultats de tir (Touché / Coulé / Dans l’eau).
+end note
+
+note right of Jeu
+Contrôleur : gère le déroulement du jeu,
+les tours et la fin de partie.
+end note
+
+note right of Statistiques
+Expert : calcule la précision et les ratios
+à partir des tirs effectués.
+end note
+@enduml
