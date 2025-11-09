@@ -1,0 +1,27 @@
+@startuml
+actor "Joeueur" as Player
+participant "Interface de Jeu" as UI
+participant "Système de gestion de jeu" as GameSystem
+
+Player -> UI: 1: sélectionner Choisir Mode de Jeu
+UI -> GameSystem: 1-1: Demander liste des modes disponibles
+GameSystem --> UI: 1-1-1: Retourner modes disponibles
+UI --> Player: 1-1-1-1: Afficher modes de jeu
+
+alt [Jouer contre IA debutante]
+    Player -> UI: 2: Choisir "IA débutant"
+    UI -> GameSystem: 2-1: Enregistrer la sélection
+else [contre IA avancee]
+    Player -> UI: 3: Choisir "IA avancé"
+    UI -> GameSystem: 3-1: Enregistrer la sélection
+end
+
+alt [Jouer contre Humain]
+    Player -> UI: 4: Choisir "Humain"
+    UI -> GameSystem: 4-1: Enregistrer la sélection
+end
+
+GameSystem --> UI: 5: Confirmer la sélection
+UI --> Player: 5-1: Afficher la sélection du mode choisi
+
+@enduml
