@@ -1,0 +1,48 @@
+@startuml
+left to right direction
+
+actor Joueur
+actor "Base de données" as BD
+actor Serveur
+
+rectangle "Bataille Navale" {
+
+  usecase "Choisir Mode de Jeu" as UC_Mode
+  usecase "Jouer contre IA" as UC_IA
+  usecase "Jouer contre Humain" as UC_Humain
+  usecase "IA débutant" as UC_IA_Debut
+  usecase "IA avancée" as UC_IA_Avancee
+
+  usecase "Placer navires" as UC_Placer
+  usecase "Jouer partie" as UC_Jouer
+  usecase "Quitter" as UC_Quitter
+  usecase "Rejouer" as UC_Rejouer
+  usecase "Créer données\nJoueur" as UC_CreerDonnees
+  usecase "Vérifier connexion" as UC_VerifConn
+  usecase "Vérifier disponibilité\njoueur" as UC_VerifDispo
+  usecase "Regarder la partie\nen mode spectateur" as UC_Spectateur
+
+  ' Acteur principal
+  Joueur --> UC_Mode
+  Joueur --> UC_Spectateur
+
+  ' Généralisation des modes de jeu
+  UC_IA -|> UC_Mode
+  UC_Humain -|> UC_Mode
+  UC_IA_Debut -|> UC_IA
+  UC_IA_Avancee --|> UC_IA
+
+  ' Includes / extends
+  UC_Jouer ..> UC_Placer : <<include>>
+  UC_Placer ..> UC_Mode : <<include>>
+  UC_Jouer ..> UC_Quitter : <<extend>>
+  UC_Jouer ..> UC_Rejouer : <<extend>>
+
+  UC_Humain ..> UC_VerifDispo      : <<include>>
+  UC_VerifDispo ..> UC_VerifConn   : <<include>>
+
+  ' Acteurs secondaires (à droite du système)
+  BD --> UC_CreerDonnees
+  Serveur -> UC_VerifConn
+}
+@enduml
