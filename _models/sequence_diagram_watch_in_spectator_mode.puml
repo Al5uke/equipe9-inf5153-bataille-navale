@@ -6,39 +6,38 @@ participant "Interface spectateur" as UI
 participant "Serveur" as Server
 participant "Système\nde jeu" as GameSystem
 
-Player -> UI: 1: Sélectionner "Regarder en mode spectateur"
-UI -> Server: 1-1: Demander disponibilité du joueur
-Server -> Server: 2: Vérifier disponibilité
+Player -> UI: 1: regarderModeSpectateur()
+UI -> Server: 1-1: verifierDisponibilitéJoueur()
+Server -> Server: 2: vérifierDisponibilité()
 
 alt [Joueur disponible]
     Server --> UI: 3: Joueur disponible
-    UI -> Server: 3-1: Demander liste des parties en cours
-    Server -> GameSystem: 3-1-1: Récupérer parties actives
-    GameSystem --> Server: 3-1-1-1: Retourner liste des parties
-    Server --> UI: 3-1-1-1-1: Envoyer liste des parties
-    UI --> Player: 3-1-1-1-1-1: Afficher parties disponibles
+    UI -> Server: 3-1: verifierPartiesEnCours()
+    Server -> GameSystem: 3-1-1: ListerPartiesEncours()
+    GameSystem --> Server: 3-1-1-1: Liste des parties en cours
+    Server --> UI: 3-1-1-1-1: Liste des parties
+    UI --> Player: 3-1-1-1-1-1: Parties disponibles
     
-    Player -> UI: 4: Sélectionner une partie à observer
-    UI -> Server: 4-1: Demander les données de la partie sélectionnée
-    Server -> GameSystem: 4-1-1: Récupérer les données de la partie en cours
-    GameSystem --> Server: 4-1-1-1: Retourner état actuel de la partie
-    Server --> UI: 4-1-1-1-1: Envoyer données de la partie
-    UI --> Player: 4-1-1-1-1-1: Afficher partie en temps réel
+    Player -> UI: 4: sélectionnerPartieAObserver()
+    UI -> Server: 4-1: demanderDonnéesPartieSélectionnée()
+    Server -> GameSystem: 4-1-1: récupérerDonnéesPartieEnCours()
+    GameSystem --> Server: 4-1-1-1: État actuel de la partie
+    Server --> UI: 4-1-1-1-1: Données de la partie
+    UI --> Player: 4-1-1-1-1-1: Partie en temps réel
     
     loop [Pendant la partie]
-        GameSystem -> Server: 5: Mettre a jour l'état de la partie
-        Server -> UI: 5-1: Envoyer mise a jour
-        UI --> Player: 5-1-1: Actualiser affichage en temps réel
+        GameSystem --> Server: 5: État actualisé
+        Server --> UI: 5-1: Partie mise à jour
+        UI --> Player: 5-1-1: Affichage en temps réel
     end
     
     alt [Partie terminée]
-        GameSystem -> Server: 6: Notifier fin de partie
+        GameSystem --> Server: 6: Fin de partie
         Server --> UI: 6-1: Partie terminée
-        UI --> Player: 6-1-1: Afficher résultat final
+        UI --> Player: 6-1-1: Résultat final
     end
 else [Joueur non disponible]
-    Server --> UI: 7: Joueur non disponible
-    UI --> Player: 7-1: Afficher message d'erreur
+    Server --> UI: 7: Joueur indisponible
+    UI --> Player: 7-1: Message "Joueur indisponible"
 end
-
 @enduml
