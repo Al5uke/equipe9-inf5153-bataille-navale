@@ -2,47 +2,66 @@
 left to right direction
 
 actor Joueur
-actor "Base de données" as BD
-actor Serveur
+actor Spectateur
+actor IA
+
+Spectateur -|> Joueur
+IA -|> Joueur
 
 rectangle "Bataille Navale" {
 
+  ' --- Colonne Mode de jeu ---
   usecase "Choisir Mode de Jeu" as UC_Mode
   usecase "Jouer contre IA" as UC_IA
+  usecase "Stratégie IA" as UC_Strategie
+  usecase "Stratégie IA débutant" as UC_IA_Debutant
+  usecase "Stratégie IA avancée" as UC_IA_Avancee
   usecase "Jouer contre Humain" as UC_Humain
-  usecase "IA débutant" as UC_IA_Debut
-  usecase "IA avancée" as UC_IA_Avancee
 
+  ' --- Colonne Actions Joueur ---
   usecase "Placer navires" as UC_Placer
   usecase "Jouer partie" as UC_Jouer
   usecase "Quitter" as UC_Quitter
   usecase "Rejouer" as UC_Rejouer
-  usecase "Créer données\nJoueur" as UC_CreerDonnees
-  usecase "Vérifier connexion" as UC_VerifConn
+  usecase "Voir classement/statistiques" as UC_ShowStats
+
+  ' --- Colonne Multijoueur ---
   usecase "Vérifier disponibilité\njoueur" as UC_VerifDispo
+  usecase "Matchmaking" as UC_MatchMaking
+
+  ' --- Colonne Spectateur ---
   usecase "Regarder la partie\nen mode spectateur" as UC_Spectateur
 
-  ' Acteur principal
-  Joueur --> UC_Mode
-  Joueur --> UC_Spectateur
+  ' --- Colonne Données ---
+  usecase "Créer données\nJoueur" as UC_CreerDonnees
 
-  ' Généralisation des modes de jeu
+
+  ' --- Liens acteurs ---
+  Joueur --> UC_Mode
+  Joueur --> UC_ShowStats
+  Spectateur --> UC_Spectateur
+  IA --> UC_Strategie
+
+
+  ' --- Généralisation modes ---
   UC_IA -|> UC_Mode
   UC_Humain -|> UC_Mode
-  UC_IA_Debut -|> UC_IA
-  UC_IA_Avancee --|> UC_IA
 
-  ' Includes / extends
-  UC_Jouer ..> UC_Placer : <<include>>
-  UC_Placer ..> UC_Mode : <<include>>
+  ' --- Généralisation IA ---
+  UC_Strategie -|> UC_IA
+  UC_IA_Debutant -|> UC_Strategie
+  UC_IA_Avancee -|> UC_Strategie
+
+
+  ' --- Includes / Extends (mis verticalement pour éviter croisements) ---
+  UC_Mode ..> UC_Placer : <<include>>
+  UC_Mode ..> UC_Jouer : <<include>>
+
   UC_Jouer ..> UC_Quitter : <<extend>>
   UC_Jouer ..> UC_Rejouer : <<extend>>
 
-  UC_Humain ..> UC_VerifDispo      : <<include>>
-  UC_VerifDispo ..> UC_VerifConn   : <<include>>
+  UC_Humain ..> UC_VerifDispo : <<include>>
+  UC_VerifDispo ..> UC_MatchMaking : <<include>>
 
-  ' Acteurs secondaires (à droite du système)
-  BD --> UC_CreerDonnees
-  Serveur -> UC_VerifConn
 }
 @enduml
