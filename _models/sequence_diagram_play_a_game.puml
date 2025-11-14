@@ -4,44 +4,46 @@ participant "Interface de jeu" as UI
 participant "Système de gestion du jeu" as GameSystem
 participant "Serveur" as Server
 
-Player -> UI: 1: Lancer "Jouer partie"
-UI -> GameSystem: 1-1: Vérifier disponibilité du joueur
-GameSystem -> Server: 1-1-1: Vérifier connexion
+Player -> UI: 1: jouerPartie()
+UI -> GameSystem: 1-1: vérifierDisponibilitéJoueur()
+GameSystem -> Server: 1-1-1: vérifierConnexion()
 Server --> GameSystem: 1-1-1-1: Connexion établie
 GameSystem --> UI: 1-1-1-1-1: Partie prête à débuter
-UI --> Player: 1-1-1-1-1-1: Afficher plateau de jeu
+UI --> Player: 1-1-1-1-1-1: Plateau de jeu
 
 loop [Jusqu'à fin de partie]
-    Player -> UI: 2: Effectuer un tir
-    UI -> GameSystem: 2-1: Enregistrer le tir
-    GameSystem -> GameSystem: 3: Vérifier résultat
-    GameSystem --> UI: 4: Retourner résultat
-    UI --> Player: 4-1: Afficher résultat et mettre à jour plateau
+    Player -> UI: 2: tirer()
+    UI -> GameSystem: 2-1: enregistrerTir()
+    GameSystem -> GameSystem: 3: vérifierRésultat()
+    GameSystem --> UI: 4: Résultat du tir
+    UI --> UI: 5: mettrePlateauAJour()
+    UI --> Player: 6: Plateau mit a jour
 
 alt [ partie terminée]
-        
-    GameSystem -> Server: 5: Détecter si la partie est terminée
+ 
+    GameSystem --> GameSystem : 7: verifierFinPartie()       
 
 else [ tour adversaire]
 
     
-    Server -> Server: 6: Effectuer le salvage
-    
-    
-    Server -> Server: 7: Vérifier résultat
-    Server --> GameSystem: 8: Retourner résultat du tir adverse
-    GameSystem --> UI: 8-1: Afficher tir adverse et mettre à jour
+    Server -> GameSystem: 8: tir adverse
+    GameSystem --> GameSystem : 9: verifierResultat()     
+    GameSystem --> UI: 10: Résultat du tir adverse
+    UI --> UI: 11: mettrePlateauAJour()
+    UI --> Player: 12: Plateau mit a jour
 
 end
 end
-    UI --> Player: 9-1: Afficher résultat final
-    Player -> UI: 10: Proposer "Quitter" ou "Rejouer"
+
+    GameSystem --> UI: 13-1: Fin de partie
+    UI --> Player: 13-1: Résultat final
+    Player -> UI: 14: Options "Quitter" ou "Rejouer"
 
 
 alt [Rejouer]
-    Player -> UI: 11: Choisir "Rejouer"
+    Player -> UI: 15: rejouer()
 else [Quitter]
-    Player -> UI: 12: Choisir "Quitter"
-    UI -> GameSystem: 12-1: Terminer la session
+    Player -> UI: 16: quitter()
+    UI -> GameSystem: 12-1: terminerSession()
 end
 @enduml
