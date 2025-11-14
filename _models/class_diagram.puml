@@ -1,96 +1,183 @@
 @startuml
-skinparam classAttributeIconSize 0
-skinparam linetype ortho
-hide circle
+title Diagramme de classes – Bataille Navale (INF5153)
 
-' ==== Entités principales du jeu ====
+/' === ENUMS / TYPES === '/
+enum TypeNavire {
+  PORTE_AVION =
+  CROISEUR
+  CONTRE_TORPILLEUR
+  SOUS_MARIN
+  TORPILLEUR
+}
+
+enum ModeJeu {
+  LOCAL_IA
+  EN_LIGNE_HUMAIN
+  SPECTATEUR
+}
+
+enum Etat {
+  COULE
+  TOUCHE
+  DANS_L'EAU
+}
+
+/' === CLASSES MÉTIER PRINCIPALES === '/
+class Jeu {
+  - parties : List<Partie>
+  - classement : Classement
+  + creerPartie(mode : ModeJeu, niveauIA : NiveauIA) : Partie
+  + terminerPartie(partie : Partie)
+  + getClassement() : Classement
+}
+
+class Partie {
+  - idPartie : int
+  - mode : ModeJeu
+  - joueur1 : Joueur
+  - joueur2 : Joueur
+  - spectateurs : List<Spectateur>
+  - enCours : boolean
+  + demarrer()
+  + jouerTour(coord : String)
+  + estTerminee() : boolean
+}
+
 class Joueur {
+  - idJoueur : int
   - nom : String
+  - estIA : boolean
+  - niveauIA : NiveauIA
   - grille : Grille
   - stats : Statistiques
-  + tirer(c : Coordonnee) : ResultatTir
-  + placerNavire(n : Navire, debut : Coordonnee, o : Orientation) : boolean
+  - strategie : StrategieIA
+  + tirer(coord : String) : void
+  + placerNavires()
 }
 
 class Grille {
-  - cases : Cas[10][10]
-  - navires : List<Navire>
-  + peutPlacer(n : Navire, debut : Coordonnee, o : Orientation) : boolean
-  + placer(n : Navire, debut : Coordonnee, o : Orientation) : void
-  + tirer(c : Coordonnee) : ResultatTir
+  - cases : Case[10][10]
+  + recevoirTir(coord : String) : String
   + tousNaviresCoules() : boolean
 }
 
-class Cas {
-  - position : Coordonnee
-  - estTouchee : boolean
-  - navire : Navire [0..1]
+class Case {
+  - coord : String
+  - touchee : boolean
+  - navire : Navire
+  + estOccupee() : boolean
+  + marquerTouche()
 }
 
 class Navire {
   - type : TypeNavire
-  - longueur : int
-  - positions : List<Cas>
+  - taille : int
+  - positions : List<Case>
   + estCoule() : boolean
 }
 
-class Jeu {
-  - joueur1 : Joueur
-  - joueur2 : Joueur
-  - tourActuel : Joueur
-  + demarrer(j1 : Joueur, j2 : Joueur) : void
-  + tirerSurAdversaire(c : Coordonnee) : ResultatTir
-  + estTerminee() : boolean
-}
-
 class Statistiques {
+  - partiesJouees : int
   - victoires : int
   - defaites : int
-  - tirsTotaux : int
+  - tirsTotal : int
   - tirsReussis : int
-  + precision() : double
+  + getRatioPrecision() : double
+  + enregistrerTir(reussi : boolean)
+  + enregistrerResultat(victoire : boolean)
 }
 
-class Coordonnee {
-  - col : int
-  - lig : int
+/' === IA (STRATEGY) === '/
+
+interface StrategieIA {
+  + choisirCaseATirer(grilleAdverse : Grille) : String
 }
 
-enum TypeNavire {
-  PORTE_AVION = 5
-  CROISEUR = 4
-  CONTRE_TORPILLEURS = 3
-  SOUS_MARIN = 3
-  TORPILLEUR = 2
+class StrategieAleatoire {
+  + choisirCaseATirer(grilleAdverse : Grille) : String
 }
 
-enum ResultatTir {
-  DANS_LEAU
-  TOUCHE
-  COULE
+class StrategieCiblee {
+  + dernierTirReussi : String
+  + choisirCaseATirer(grilleAdverse : Grille) : String
 }
 
-' ==== Associations & multiplicités ====
-Jeu "1" o-- "2" Joueur : joueurs
-Joueur "1" o-- "1" Grille
-Joueur "1" o-- "1" Statistiques
-Grille "1" *-- "100" Cas
-Grille "1" *-- "0..5" Navire
-Navire "1" o-- "2..5" Cas
+StrategieAleatoire -|> StrategieIA
+StrategieCiblee -|> StrategieIA
 
-' ==== Notes explicatives ====
-note right of Grille
-Information Expert : connaît les cases et les navires,
-calcule les résultats de tir (Touché / Coulé / Dans l’eau).
-end note
+/' === STATS & CLASSEMENT === '/
 
-note right of Jeu
-Contrôleur : gère le déroulement du jeu,
-les tours et la fin de partie.
-end note
+class Classement {
+  - entrees : List<EntreeClassement>
+  + mettreAJour(joueur : Joueur)
+  + topN(n : int) : List<EntreeClassement>
+}
 
-note right of Statistiques
-Expert : calcule la précision et les ratios
-à partir des tirs effectués.
-end note
+class EntreeClassement {
+  - joueur : Joueur
+  - nbVictoires : int
+  - ratioPrecision : double
+}
+
+/' === MODE SPECTATEUR === '/
+
+class Spectateur {
+  - idSpectateur : int
+  - nom : String
+  + rejoindrePartie(partie : Partie)
+  + quitterPartie()
+}
+
+/' === PERSISTANCE / SERVEUR === '/
+
+class BaseDeDonnees {
+  + sauvegarderPartie(partie : Partie)
+  + chargerPartie(id : int) : Partie
+  + sauvegarderStats(joueur : Joueur)
+  + chargerClassement() : Classement
+}
+
+class ServeurJeu {
+  - matchmaking : ServiceMatchmaking
+  - db : BaseDeDonnees
+  + connecterJoueur(j : Joueur)
+  + trouverAdversaire(j : Joueur) : Partie
+}
+
+class ServiceMatchmaking {
+  - joueursEnAttente : List<Joueur>
+  + ajouterEnAttente(j : Joueur)
+  + creerPartieSiPossible() : Partie
+}
+
+/' === RELATIONS === '/
+
+Jeu *-- "1..*" Partie : gère >
+Jeu *-- Classement : maintient >
+Jeu --> BaseDeDonnees : persiste >
+Jeu o-- "1" ModeJeu
+
+Partie *-- "2" Joueur : contient >
+Partie o-- "0..*" Spectateur : observée par >
+
+Joueur *-- "1" Grille : possède >
+Joueur o-- "1" Statistiques : a >
+Joueur o-- "0..1" StrategieIA : utilise >
+
+Grille *-- "100" Case : composée de >
+Case o-- "0..1" Navire : peut contenir >
+Case o-- Etat
+Navire o-- "1" TypeNavire
+
+Classement *-- "0..*" EntreeClassement
+EntreeClassement o-- Joueur
+
+ServeurJeu *-- ServiceMatchmaking
+ServeurJeu o-- BaseDeDonnees
+ServiceMatchmaking o-- "0..*" Joueur
+
+BaseDeDonnees o-- Partie
+BaseDeDonnees o-- Classement
+BaseDeDonnees o-- Statistiques
+
 @enduml
