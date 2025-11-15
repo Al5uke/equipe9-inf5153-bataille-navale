@@ -1,44 +1,56 @@
 @startuml
 title Diagramme de composants
-package "Interface utilisateur" {
-  [Interface Joueur] as InterfaceJoueur
+
+() "ActionsJoueur"
+() "StrategieDeTir"
+() "ServiceStatistiques"
+() "AccesDonnees"
+
+component "Interface Joueur" {
+  portout P_ActionJoueur
 }
 
-package "Logique du jeu" {
-  component [Jeu]
-  component [Joueur]
-  component [Grille]
-  component [Case]
-  component [Navire]
+component "Jeu" {
+  portin  P_ReceptionActions
+  portout P_EmissionTir
+  portout P_EmissionStats
 }
 
-package "IA" {
-  component [IA (Stratégie)]
+component "IA" {
+  portin P_ReceptionTir
 }
 
-package "Statistiques" {
-  component [Gestion des statistiques]
+component "Statistiques" {
+  portin  P_ReceptionStats
+  portout P_EnvoiDonnees
 }
 
-package "Données" {
-  component [Base de données]
+component "Base de Donnees" {
+  portin P_Reception
 }
 
-InterfaceJoueur --> Jeu : envoie les actions du joueur\n(lancer partie, tirer, placer navires)
+[Joueur]
+[Grille]
+[Case]
+[Navire]
 
-Jeu --> Joueur : gère les tours\net coordonne les actions
-Jeu --> [Gestion des statistiques] : met à jour les scores
-Jeu --> [IA (Stratégie)] : utilise pour\njouer automatiquement
+P_ActionJoueur --> "ActionsJoueur"
+"ActionsJoueur" -- P_ReceptionActions
 
-Joueur *--> Grille 
+P_EmissionTir --> "StrategieDeTir"
+"StrategieDeTir" -- P_ReceptionTir
 
-Grille --> Case : contient plusieurs cases
-Grille --> Navire : gère le placement\ndes navires
+P_EmissionStats --> "ServiceStatistiques"
+"ServiceStatistiques" -- P_ReceptionStats
 
-Case --> Navire : peut contenir\nun partie de navire
+P_EnvoiDonnees --> "AccesDonnees"
+"AccesDonnees" -- P_Reception
 
-[IA (Stratégie)] --> Grille : analyse pour\nchoisir les tirs
-
-[Gestion des statistiques] --> [Base de données] : enregistre et lit les\ndonnées des parties
+"Jeu" --> [Joueur]
+[Joueur] --> [Grille]
+[Grille] --> [Case]
+[Grille] --> [Navire]
+[Case] --> [Navire]
+"IA" --> [Grille]
 
 @enduml
