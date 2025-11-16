@@ -1,0 +1,183 @@
+@startuml
+title Diagramme de classes – Bataille Navale (INF5153)
+
+/' === ENUMS / TYPES === '/
+enum TypeNavire {
+  PORTE_AVION =
+  CROISEUR
+  CONTRE_TORPILLEUR
+  SOUS_MARIN
+  TORPILLEUR
+}
+
+enum ModeJeu {
+  LOCAL_IA
+  EN_LIGNE_HUMAIN
+  SPECTATEUR
+}
+
+enum Etat {
+  COULE
+  TOUCHE
+  DANS_L'EAU
+}
+
+/' === CLASSES MÉTIER PRINCIPALES === '/
+class Jeu {
+  - parties : List<Partie>
+  - classement : Classement
+  + creerPartie(mode : ModeJeu, niveauIA : NiveauIA) : Partie
+  + terminerPartie(partie : Partie)
+  + getClassement() : Classement
+}
+
+class Partie {
+  - idPartie : int
+  - mode : ModeJeu
+  - joueur1 : Joueur
+  - joueur2 : Joueur
+  - spectateurs : List<Spectateur>
+  - enCours : boolean
+  + demarrer()
+  + jouerTour(coord : String)
+  + estTerminee() : boolean
+}
+
+class Joueur {
+  - idJoueur : int
+  - nom : String
+  - estIA : boolean
+  - niveauIA : NiveauIA
+  - grille : Grille
+  - stats : Statistiques
+  - strategie : StrategieIA
+  + tirer(coord : String) : void
+  + placerNavires()
+}
+
+class Grille {
+  - cases : Case[10][10]
+  + recevoirTir(coord : String) : String
+  + tousNaviresCoules() : boolean
+}
+
+class Case {
+  - coord : String
+  - touchee : boolean
+  - navire : Navire
+  + estOccupee() : boolean
+  + marquerTouche()
+}
+
+class Navire {
+  - type : TypeNavire
+  - taille : int
+  - positions : List<Case>
+  + estCoule() : boolean
+}
+
+class Statistiques {
+  - partiesJouees : int
+  - victoires : int
+  - defaites : int
+  - tirsTotal : int
+  - tirsReussis : int
+  + getRatioPrecision() : double
+  + enregistrerTir(reussi : boolean)
+  + enregistrerResultat(victoire : boolean)
+}
+
+/' === IA (STRATEGY) === '/
+
+interface StrategieIA {
+  + choisirCaseATirer(grilleAdverse : Grille) : String
+}
+
+class StrategieAleatoire {
+  + choisirCaseATirer(grilleAdverse : Grille) : String
+}
+
+class StrategieCiblee {
+  + dernierTirReussi : String
+  + choisirCaseATirer(grilleAdverse : Grille) : String
+}
+
+StrategieAleatoire -|> StrategieIA
+StrategieCiblee -|> StrategieIA
+
+/' === STATS & CLASSEMENT === '/
+
+class Classement {
+  - entrees : List<EntreeClassement>
+  + mettreAJour(joueur : Joueur)
+  + topN(n : int) : List<EntreeClassement>
+}
+
+class EntreeClassement {
+  - joueur : Joueur
+  - nbVictoires : int
+  - ratioPrecision : double
+}
+
+/' === MODE SPECTATEUR === '/
+
+class Spectateur {
+  - idSpectateur : int
+  - nom : String
+  + rejoindrePartie(partie : Partie)
+  + quitterPartie()
+}
+
+/' === PERSISTANCE / SERVEUR === '/
+
+class BaseDeDonnees {
+  + sauvegarderPartie(partie : Partie)
+  + chargerPartie(id : int) : Partie
+  + sauvegarderStats(joueur : Joueur)
+  + chargerClassement() : Classement
+}
+
+class ServeurJeu {
+  - matchmaking : ServiceMatchmaking
+  - db : BaseDeDonnees
+  + connecterJoueur(j : Joueur)
+  + trouverAdversaire(j : Joueur) : Partie
+}
+
+class ServiceMatchmaking {
+  - joueursEnAttente : List<Joueur>
+  + ajouterEnAttente(j : Joueur)
+  + creerPartieSiPossible() : Partie
+}
+
+/' === RELATIONS === '/
+
+Jeu *-- "1..*" Partie : gère >
+Jeu *-- Classement : maintient >
+Jeu --> BaseDeDonnees : persiste >
+Jeu o-- "1" ModeJeu
+
+Partie *-- "2" Joueur : contient >
+Partie o-- "0..*" Spectateur : observée par >
+
+Joueur *-- "1" Grille : possède >
+Joueur o-- "1" Statistiques : a >
+Joueur o-- "0..1" StrategieIA : utilise >
+
+Grille *-- "100" Case : composée de >
+Case o-- "0..1" Navire : peut contenir >
+Case o-- Etat
+Navire o-- "1" TypeNavire
+
+Classement *-- "0..*" EntreeClassement
+EntreeClassement o-- Joueur
+
+ServeurJeu *-- ServiceMatchmaking
+ServeurJeu o-- BaseDeDonnees
+ServiceMatchmaking o-- "0..*" Joueur
+
+BaseDeDonnees o-- Partie
+BaseDeDonnees o-- Classement
+BaseDeDonnees o-- Statistiques
+
+@enduml

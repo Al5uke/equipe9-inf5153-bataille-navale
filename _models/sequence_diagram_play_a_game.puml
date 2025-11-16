@@ -1,0 +1,49 @@
+@startuml
+actor "Joueur" as Player
+participant "Interface de jeu" as UI
+participant "Système de gestion du jeu" as GameSystem
+participant "Serveur" as Server
+
+Player -> UI: 1: jouerPartie()
+UI -> GameSystem: 1-1: vérifierDisponibilitéJoueur()
+GameSystem -> Server: 1-1-1: vérifierConnexion()
+Server --> GameSystem: 1-1-1-1: Connexion établie
+GameSystem --> UI: 1-1-1-1-1: Partie prête à débuter
+UI --> Player: 1-1-1-1-1-1: Plateau de jeu
+
+loop [Jusqu'à fin de partie]
+    Player -> UI: 2: tirer()
+    UI -> GameSystem: 2-1: enregistrerTir()
+    GameSystem -> GameSystem: 3: vérifierRésultat()
+    GameSystem --> UI: 4: Résultat du tir
+    UI --> UI: 5: mettrePlateauAJour()
+    UI --> Player: 6: Plateau mit a jour
+
+alt [ partie terminée]
+ 
+    GameSystem --> GameSystem : 7: verifierFinPartie()       
+
+else [ tour adversaire]
+
+    
+    Server -> GameSystem: 8: tir adverse
+    GameSystem --> GameSystem : 9: verifierResultat()     
+    GameSystem --> UI: 10: Résultat du tir adverse
+    UI --> UI: 11: mettrePlateauAJour()
+    UI --> Player: 12: Plateau mit a jour
+
+end
+end
+
+    GameSystem --> UI: 13-1: Fin de partie
+    UI --> Player: 13-1: Résultat final
+    Player -> UI: 14: Options "Quitter" ou "Rejouer"
+
+
+alt [Rejouer]
+    Player -> UI: 15: rejouer()
+else [Quitter]
+    Player -> UI: 16: quitter()
+    UI -> GameSystem: 12-1: terminerSession()
+end
+@enduml

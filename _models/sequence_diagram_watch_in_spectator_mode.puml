@@ -1,0 +1,43 @@
+@startuml
+title Diagramme de séquence: Regarder la partie en mode spectateur
+
+actor "Joueur" as Player
+participant "Interface spectateur" as UI
+participant "Serveur" as Server
+participant "Système\nde jeu" as GameSystem
+
+Player -> UI: 1: regarderModeSpectateur()
+UI -> Server: 1-1: verifierDisponibilitéJoueur()
+Server -> Server: 2: vérifierDisponibilité()
+
+alt [Joueur disponible]
+    Server --> UI: 3: Joueur disponible
+    UI -> Server: 3-1: verifierPartiesEnCours()
+    Server -> GameSystem: 3-1-1: ListerPartiesEncours()
+    GameSystem --> Server: 3-1-1-1: Liste des parties en cours
+    Server --> UI: 3-1-1-1-1: Liste des parties
+    UI --> Player: 3-1-1-1-1-1: Parties disponibles
+    
+    Player -> UI: 4: sélectionnerPartieAObserver()
+    UI -> Server: 4-1: demanderDonnéesPartieSélectionnée()
+    Server -> GameSystem: 4-1-1: récupérerDonnéesPartieEnCours()
+    GameSystem --> Server: 4-1-1-1: État actuel de la partie
+    Server --> UI: 4-1-1-1-1: Données de la partie
+    UI --> Player: 4-1-1-1-1-1: Partie en temps réel
+    
+    loop [Pendant la partie]
+        GameSystem --> Server: 5: État actualisé
+        Server --> UI: 5-1: Partie mise à jour
+        UI --> Player: 5-1-1: Affichage en temps réel
+    end
+    
+    alt [Partie terminée]
+        GameSystem --> Server: 6: Fin de partie
+        Server --> UI: 6-1: Partie terminée
+        UI --> Player: 6-1-1: Résultat final
+    end
+else [Joueur non disponible]
+    Server --> UI: 7: Joueur indisponible
+    UI --> Player: 7-1: Message "Joueur indisponible"
+end
+@enduml

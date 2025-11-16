@@ -1,0 +1,56 @@
+@startuml
+title Diagramme de composants
+
+() "ActionsJoueur"
+() "StrategieDeTir"
+() "ServiceStatistiques"
+() "AccesDonnees"
+
+component "Interface Joueur" {
+  portout P_ActionJoueur
+}
+
+component "Jeu" {
+  portin  P_ReceptionActions
+  portout P_EmissionTir
+  portout P_EmissionStats
+}
+
+component "IA" {
+  portin P_ReceptionTir
+}
+
+component "Statistiques" {
+  portin  P_ReceptionStats
+  portout P_EnvoiDonnees
+}
+
+component "Base de Donnees" {
+  portin P_Reception
+}
+
+[Joueur]
+[Grille]
+[Case]
+[Navire]
+
+P_ActionJoueur --> "ActionsJoueur"
+"ActionsJoueur" -- P_ReceptionActions
+
+P_EmissionTir --> "StrategieDeTir"
+"StrategieDeTir" -- P_ReceptionTir
+
+P_EmissionStats --> "ServiceStatistiques"
+"ServiceStatistiques" -- P_ReceptionStats
+
+P_EnvoiDonnees --> "AccesDonnees"
+"AccesDonnees" -- P_Reception
+
+"Jeu" --> [Joueur]
+[Joueur] --> [Grille]
+[Grille] --> [Case]
+[Grille] --> [Navire]
+[Case] --> [Navire]
+"IA" --> [Grille]
+
+@enduml

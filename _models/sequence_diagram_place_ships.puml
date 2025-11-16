@@ -1,0 +1,31 @@
+@startuml
+actor "Joueur" as Player
+participant "Interface de placement" as UI
+participant "Système de gestion de grille" as GridSystem
+
+Player -> UI: 1: placerNavires()
+UI -> GridSystem: 1-1: fournirGrille()
+GridSystem --> UI: 1-2: Grille vide
+UI -> GridSystem: 2: fournirListeNavires()
+GridSystem --> UI: 2-1: Liste des navires
+UI --> Player: 3: Grille
+UI --> Player: 4: Liste des navires
+
+
+loop [pour chaque navire]
+    Player -> UI: 5: placerNavire()
+    UI -> GridSystem: 5-1: validerPlacement()
+    
+    alt [Placement valide]
+        GridSystem --> UI: 6: Placement du navire accepté
+        UI --> Player: 6-1: Navire affiché sur la grille
+    else [Joueur doit replacer navire]
+        GridSystem --> UI: 7: Placement du navire refusé
+        UI --> Player: 7-1: Afficher message d'erreur
+    end
+end
+
+GridSystem -> GridSystem: 8: vérifierplacementNavires()
+GridSystem --> UI: 9: Confirmation du placement de tous les navires
+UI --> Player: 9-1: Message de confirmation
+@enduml

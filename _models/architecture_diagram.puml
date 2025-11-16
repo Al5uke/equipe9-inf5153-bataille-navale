@@ -1,0 +1,86 @@
+@startuml
+title Architecture en couches (3-tiers) - Bataille Navale (version alignée)
+
+skinparam shadowing false
+skinparam linetype ortho
+skinparam rectangleStyle round
+
+' ================================
+' ======= COUCHE PRESENTATION =====
+' ================================
+rectangle "Présentation\n(UI / Interface utilisateur)" as UI #ADD8E6 {
+  rectangle VueGraphique
+  rectangle InterfaceConsole
+}
+
+' ================================
+' ======= COUCHE APPLICATION =====
+' ================================
+rectangle "Application\n(Service / Coordination)" as APP #D0FFD0 {
+  rectangle ServiceJeu
+  rectangle ServiceMatchmaking
+}
+
+' ================================
+' ======= COUCHE METIER ===========
+' ================================
+rectangle "Métier\n(Logique applicative + Domaine)" as METIER #C0F5A0 {
+  
+  rectangle "Entités du jeu" as ENT {
+    rectangle Jeu
+    rectangle Partie
+    rectangle Joueur
+    rectangle Spectateur
+    rectangle Grille
+    rectangle Case
+    rectangle Navire
+    rectangle Etat
+    rectangle TypeNavire
+  }
+
+  rectangle "Gestion du classement" as CL {
+    rectangle Classement
+    rectangle EntreeClassement
+  }
+
+  rectangle "Statistiques" as STAT {
+    rectangle Statistiques
+  }
+
+  rectangle "IA (Strategy)" as IA {
+    rectangle StrategieIA
+    rectangle StrategieAleatoire
+    rectangle StrategieCiblee
+  }
+}
+
+' ================================
+' ======= COUCHE DONNEES =========
+' ================================
+rectangle "Données\n(Persistance / Base de données)" as DATA #FFCC99 {
+  rectangle BaseDeDonnees
+  rectangle SQLite
+}
+
+' ===== Liens entre couches ======
+UI --> APP
+APP --> METIER
+METIER --> DATA
+
+note right of APP
+GRASP : Controller
+Coordonne UI, logique métier et persistance.
+end note
+
+note bottom of METIER
+GRASP : Information Expert
+Les entités (Grille, Case, Navire, Statistiques)
+connaissent leurs propres données.
+end note
+
+note right of DATA
+GRASP : Pure Fabrication
+Isole SQLite du domaine métier.
+end note
+
+@enduml
