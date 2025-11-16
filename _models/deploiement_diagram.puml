@@ -1,65 +1,65 @@
 @startuml
 skinparam linetype ortho
-skinparam rectangleFontStyle bold
-skinparam nodeFontStyle bold
-skinparam componentFontStyle italic
+skinparam rectangleStyle roundCorner
+skinparam nodeBorderColor #004c70
+skinparam nodeBackgroundColor #8fd3ff
 hide circle
+
 title Diagramme de déploiement – Bataille Navale (mode local et en ligne)
 
-' ==== CLIENT JOUEUR 1 ====
+' ======================
+' === CLIENT JOUEUR 1 ==
+' ======================
 node "Client Joueur 1" as Client1 {
   artifact "Application BatailleNavale.jar" as App1
 
-  component "InterfaceConsole / VueGraphique" as UI1
+  component "InterfaceConsole /\nVueGraphique" as UI1
   component "ServiceJeu" as Service1
-  component "Domaine du jeu\n(Jeu, Joueur, Grille, Navire, Statistiques)" as Domaine1
+  component "Domaine du jeu\n(Jeu, Joueur, Grille,\nNavire, Statistiques)" as Domaine1
+  component "JoueurIA\n(Stratégie aléatoire / ciblée)" as IA1
   database "Fichier SQLite local" as DBLocal1
 
-  ' IA bien visible ici
-  component "JoueurIA\n(StrategieIA / Aleatoire / Ciblee)" as IA
-  Service1 --> IA : appels IA (mode solo)
-
-  note right of IA
-  IA locale exécutée sur le client\n(utilise le pattern Strategy).
-  end note
-
-  UI1 --> Service1
-  Service1 --> Domaine1
-  Service1 --> DBLocal1
+  UI1 --> Service1 : commandes utilisateur
+  Service1 --> Domaine1 : logique de jeu
+  Service1 --> IA1 : mode solo (IA)
+  App1 -down-> DBLocal1 : persistance locale
 }
 
-' ==== CLIENT JOUEUR 2 ====
+' ======================
+' === CLIENT JOUEUR 2 ==
+' ======================
 node "Client Joueur 2" as Client2 {
   artifact "Application BatailleNavale.jar" as App2
-  component "InterfaceConsole / VueGraphique" as UI2
+
+  component "InterfaceConsole /\nVueGraphique" as UI2
   component "ServiceJeu" as Service2
-  component "Domaine du jeu\n(Jeu, Joueur, Grille, Navire, Statistiques)" as Domaine2
-  database "Fichier SQLite local" as DBLocal2
+  component "Domaine du jeu\n(Jeu, Joueur, Grille,\nNavire, Statistiques)" as Domaine2
 
   UI2 --> Service2
   Service2 --> Domaine2
-  Service2 --> DBLocal2
 }
 
-' ==== SERVEUR ====
+' ======================
+' === SERVEUR DE JEU ===
+' ======================
 node "Serveur de Jeu" as Server {
-  component "Service de Matchmaking"
-  component "Contrôleur Principal / API Réseau"
-  database "Base centrale SQLite (serveur)" as DBCentral
+  component "Service de Matchmaking" as MM
+  component "API Réseau /\nContrôleur principal" as API
 }
 
-' ==== COMMUNICATIONS ====
-Client1 -[#blue]-> Server : TCP / HTTP\n(Recherche d’adversaire)
-Client2 -[#blue]-> Server : TCP / HTTP\n(Recherche d’adversaire)
-Server -[#brown]-> DBCentral : Accès aux scores / classements
-Client1 -[#green]-> Client2 : Échanges de coups\n(Mode multijoueur)
+' =========================
+' === BASE DE DONNÉES   ===
+' =========================
+node "Serveur BD centrale" as DBServer {
+  database "SQLite centrale\n(scores, classements)" as DBCentral
+}
 
-note right of Client1
-Chaque client contient :
-- l'interface utilisateur
-- la logique du jeu
-- le service applicatif
-- la base locale SQLite
-- et l’IA (mode solo)
-end note
+' ========= LIENS RÉSEAU =========
+Client1 -[#blue]-> Server : TCP/HTTP\n(recherche adversaire)
+Client2 -[#blue]-> Server : TCP/HTTP\n(recherche adversaire)
+
+Client1 -[#green]-> Client2 : échanges de coups\n(mode multijoueur)
+
+Server -[#brown]-> DBServer : JDBC/SQL\n(sauvegarde stats)
+
 @enduml
