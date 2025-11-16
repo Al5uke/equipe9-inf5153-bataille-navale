@@ -54,7 +54,7 @@ Regroupe toutes les classes qui définissent les règles du jeu :
 - Stratégies IA (Aléatoire/Ciblée)  
 C'est la couche la plus importante car elle gère le placement des navires, les tirs, les résultats, les victoires, les statistiques et les IA.  
 
-➡ GRASP utilisé :  
+**GRASP utilisé :**  
 - Controller (serviceJeu)
 - Information Expert 
 - Low Coupling (UI ne connait pas le domaine directement) 
@@ -68,7 +68,8 @@ Elle se charge uniquement de :
 - charger les scores,
 - gérer les classements.
 
-➡ GRASP : Pure Fabrication, car elle isole la persistance pour garder un domaine propre.  
+**GRASP :**  
+Pure Fabrication, car elle isole la persistance pour garder un domaine propre.  
 
 ## **Diagramme de classe**
 Le diagramme de classes représente l’ensemble des entités qui composent l’application Bataille Navale ainsi que leurs relations.
@@ -220,8 +221,7 @@ Chacun expose des ports / interfaces :
 - P_ActionJoueur : actions venant de l’interface
 - P_EmissionTir : communication vers IA
 - P_EmissionStats : mise à jour des statistiques
-- P_EnvoiDonnees : envoi à la BD  
-➡ Permet de visualiser les dépendances sans entrer dans les détails des classes.
+- P_EnvoiDonnees : envoi à la BD : Permet de visualiser les dépendances sans entrer dans les détails des classes.
 
 ## **Diagramme de déploiement** 
 Ce diagramme montre où l’application s’exécute physiquement.  
@@ -244,8 +244,8 @@ Contient :
 **Communications :**
 - TCP/HTTP entre clients et serveur
 - Échanges de coups entre joueurs en réseau
-- Accès BD centrale par le serveur
-➡ L’objectif est de représenter les machines, les composants et les liens.
+- Accès BD centrale par le serveur  
+L’objectif est de représenter les machines, les composants et les liens.
 
 ## **Diagramme de cas d'utilisation** 
 Le diagramme de cas d’utilisation « Bataille Navale » décrit les principales fonctionnalités offertes par le système du point de vue des utilisateurs externes.
@@ -392,7 +392,7 @@ Ce diagramme montre le flux complet d’une partie, tir après tir.
 **GRASP appliqués**
 - Controller (Système de gestion du jeu)
 - Information Expert (Navire, Grille, Statistiques)
-- Low Coupling (Interface ↔ Domaine ↔ Serveur)
+- Low Coupling (Interface - Domaine - Serveur)
 
 **3. Diagramme de séquence — Créer données joueur**  
 Ce diagramme illustre la création d’un nouvel utilisateur et son enregistrement dans la base.
@@ -459,6 +459,6 @@ Ce diagramme illustre la fonctionnalité bonus permettant à un utilisateur d'ob
     - si indisponible → message d'erreur.
 
 **GRASP appliqués**
-- Low Coupling (Spectateur ↔ Interface ↔ Serveur)
+- Low Coupling (Spectateur - Interface - Serveur)
 - Information Expert (Système de jeu / Serveur)
 - Controller (Interface spectateur)
