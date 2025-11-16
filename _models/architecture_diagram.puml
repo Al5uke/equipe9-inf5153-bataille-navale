@@ -1,77 +1,86 @@
 @startuml
-title Architecture en couches (3-tiers) – Bataille Navale
+title Architecture en couches (3-tiers) - Bataille Navale (version alignée)
 
-skinparam componentStyle rectangle
-skinparam packageStyle rectangle
+skinparam shadowing false
 skinparam linetype ortho
+skinparam rectangleStyle round
 
-' ==========================
-' COUCHE 1 : PRÉSENTATION
-' ==========================
-package "Présentation\n(UI / Interface homme-machine)" #ADD8E6 {
-  [InterfaceConsole]
-  [VueGraphique]
+' ================================
+' ======= COUCHE PRESENTATION =====
+' ================================
+rectangle "Présentation\n(UI / Interface utilisateur)" as UI #ADD8E6 {
+  rectangle VueGraphique
+  rectangle InterfaceConsole
 }
 
-' ==========================
-' COUCHE 2 : MÉTIER
-' (logique applicative + domaine)
-' ==========================
-package "Métier\n(Logique applicative + Domaine)" #98FB98 {
-  [ServiceJeu]
-
-  [Jeu]
-  [Joueur]
-  [Grille]
-  [Case]
-  [Navire]
-  [Statistiques]
-
-  interface StrategieIA
-  [StrategieAleatoire]
-  [StrategieCiblee]
-
-  StrategieAleatoire -|> StrategieIA
-  StrategieCiblee -|> StrategieIA
+' ================================
+' ======= COUCHE APPLICATION =====
+' ================================
+rectangle "Application\n(Service / Coordination)" as APP #D0FFD0 {
+  rectangle ServiceJeu
+  rectangle ServiceMatchmaking
 }
 
-' ==========================
-' COUCHE 3 : DONNÉES
-' ==========================
-package "Données\n(Persistance / Base de données)" #F4A460 {
-  [BaseDeDonnees]
-  [SQLite]
+' ================================
+' ======= COUCHE METIER ===========
+' ================================
+rectangle "Métier\n(Logique applicative + Domaine)" as METIER #C0F5A0 {
+  
+  rectangle "Entités du jeu" as ENT {
+    rectangle Jeu
+    rectangle Partie
+    rectangle Joueur
+    rectangle Spectateur
+    rectangle Grille
+    rectangle Case
+    rectangle Navire
+    rectangle Etat
+    rectangle TypeNavire
+  }
+
+  rectangle "Gestion du classement" as CL {
+    rectangle Classement
+    rectangle EntreeClassement
+  }
+
+  rectangle "Statistiques" as STAT {
+    rectangle Statistiques
+  }
+
+  rectangle "IA (Strategy)" as IA {
+    rectangle StrategieIA
+    rectangle StrategieAleatoire
+    rectangle StrategieCiblee
+  }
 }
 
-' ===== DÉPENDANCES ENTRE COUCHES (HAUT -> BAS) =====
+' ================================
+' ======= COUCHE DONNEES =========
+' ================================
+rectangle "Données\n(Persistance / Base de données)" as DATA #FFCC99 {
+  rectangle BaseDeDonnees
+  rectangle SQLite
+}
 
-[InterfaceConsole] --> [ServiceJeu]
-[VueGraphique] --> [ServiceJeu]
+' ===== Liens entre couches ======
+UI --> APP
+APP --> METIER
+METIER --> DATA
 
-[ServiceJeu] --> [Jeu]
-[Jeu] --> [Joueur]
-[Jeu] --> [Grille]
-[Jeu] --> [Statistiques]
-
-[Joueur] --> StrategieIA
-
-[Jeu] --> [BaseDeDonnees]
-[BaseDeDonnees] --> [SQLite]
-
-' ===== NOTES (optionnelles pour GRASP) =====
-note right of [ServiceJeu]
-GRASP : Controller / Low Coupling
+note right of APP
+GRASP : Controller
 Coordonne UI, logique métier et persistance.
 end note
 
-note bottom of [Grille]
+note bottom of METIER
 GRASP : Information Expert
-Connaît les cases & navires, calcule TOUCHÉ/COULÉ.
+Les entités (Grille, Case, Navire, Statistiques)
+connaissent leurs propres données.
 end note
 
-note right of [BaseDeDonnees]
+note right of DATA
 GRASP : Pure Fabrication
-Isole l'accès à SQLite du domaine métier.
+Isole SQLite du domaine métier.
 end note
 
 @enduml
