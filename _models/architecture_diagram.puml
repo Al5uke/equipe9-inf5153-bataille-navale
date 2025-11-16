@@ -1,69 +1,77 @@
 @startuml
+title Architecture en couches (3-tiers) – Bataille Navale
+
+skinparam componentStyle rectangle
 skinparam packageStyle rectangle
 skinparam linetype ortho
-hide circle
 
-' ==== Couches ====
-package "ui.console" {
-  component "InterfaceConsole"
+' ==========================
+' COUCHE 1 : PRÉSENTATION
+' ==========================
+package "Présentation\n(UI / Interface homme-machine)" #ADD8E6 {
+  [InterfaceConsole]
+  [VueGraphique]
 }
 
-package "application" {
-  component "ServiceJeu"
+' ==========================
+' COUCHE 2 : MÉTIER
+' (logique applicative + domaine)
+' ==========================
+package "Métier\n(Logique applicative + Domaine)" #98FB98 {
+  [ServiceJeu]
+
+  [Jeu]
+  [Joueur]
+  [Grille]
+  [Case]
+  [Navire]
+  [Statistiques]
+
+  interface StrategieIA
+  [StrategieAleatoire]
+  [StrategieCiblee]
+
+  StrategieAleatoire -|> StrategieIA
+  StrategieCiblee -|> StrategieIA
 }
 
-package "domaine" {
-  component "Jeu"
-  component "Joueur"
-  component "Grille"
-  component "Cas"
-  component "Navire"
-  component "Statistiques"
+' ==========================
+' COUCHE 3 : DONNÉES
+' ==========================
+package "Données\n(Persistance / Base de données)" #F4A460 {
+  [BaseDeDonnees]
+  [SQLite]
 }
 
-package "ia (optionnelle)" {
-  interface "StrategieIA"
-  component "StrategieAleatoire"
-  component "StrategieCiblee"
-}
+' ===== DÉPENDANCES ENTRE COUCHES (HAUT -> BAS) =====
 
-package "persistance" {
-  database "SQLite (Base de données)" as DB
-  component "BaseDeDonnees\n(DAO/Repository)"
-}
+[InterfaceConsole] --> [ServiceJeu]
+[VueGraphique] --> [ServiceJeu]
 
-' ==== Dépendances entre couches ====
-"InterfaceConsole" --> "ServiceJeu" : commandes utilisateur
-"ServiceJeu" --> "Jeu" : orchestration des tours
-"ServiceJeu" --> "BaseDeDonnees\n(DAO/Repository)" : save/load
-"BaseDeDonnees\n(DAO/Repository)" --> DB : JDBC
+[ServiceJeu] --> [Jeu]
+[Jeu] --> [Joueur]
+[Jeu] --> [Grille]
+[Jeu] --> [Statistiques]
 
-' domaine interne
-"Jeu" --> "Joueur" : joueur1 / joueur2
-"Joueur" --> "Grille"
-"Grille" --> "Cas"
-"Grille" --> "Navire"
-"Joueur" --> "Statistiques"
+[Joueur] --> StrategieIA
 
-' IA (si Joueur IA)
-"ServiceJeu" --> "StrategieIA" : choisir prochain tir
-"StrategieAleatoire" -up-|> "StrategieIA"
-"StrategieCiblee" -up-|> "StrategieIA"
+[Jeu] --> [BaseDeDonnees]
+[BaseDeDonnees] --> [SQLite]
 
-' ==== Notes GRASP (rappel concis) ====
-note right of "ServiceJeu"
-GRASP: Controller / Low Coupling\n
-Reçoit les commandes de l'UI,\appelle le domaine et la persistance.
+' ===== NOTES (optionnelles pour GRASP) =====
+note right of [ServiceJeu]
+GRASP : Controller / Low Coupling
+Coordonne UI, logique métier et persistance.
 end note
 
-note right of "Grille"
-GRASP: Information Expert\n
-Connait cases & navires, calcule TOUCHE/COULE.
+note bottom of [Grille]
+GRASP : Information Expert
+Connaît les cases & navires, calcule TOUCHÉ/COULÉ.
 end note
 
-note right of "BaseDeDonnees\n(DAO/Repository)"
-GRASP: Pure Fabrication / Indirection\n
-Isole la BD (SQLite) du domaine.
+note right of [BaseDeDonnees]
+GRASP : Pure Fabrication
+Isole l'accès à SQLite du domaine métier.
 end note
 
 @enduml
