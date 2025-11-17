@@ -1,34 +1,51 @@
 @startuml
 title Diagramme de packages
-
 package "Interface utilisateur" {
-  class "InterfaceJoueur"
+  class InterfaceJoueur
+  class Spectateur
 }
 
 package "Logique du jeu" {
-  class "Jeu"
-  class "Joueur"
-  class "Grille"
-  class "Case"
-  class "Navire"
+  class Jeu
+  class Partie
+  class Joueur
+  class Grille
+  class Case
+  class Navire
+  enum TypeNavire
+  enum ModeJeu
+  enum Etat
 }
 
 package "IA" {
-  class "IAStrategie"
+  interface StrategieIA
+  class StrategieAleatoire
+  class StrategieCiblee
 }
 
 package "GestionStatistiques" {
-  class "Statistiques"
+  class Statistiques
+  class Classement
+  class EntreeClassement
+}
+
+package "Serveur" {
+  class ServeurJeu
+  class ServiceMatchmaking
 }
 
 package "Données" {
-  class "BaseDeDonnees"
+  class BaseDeDonnees
 }
 
 "Interface utilisateur" ..> "Logique du jeu" : <<import>>
 "Logique du jeu" ..> "IA" : <<use>>
 "Logique du jeu" ..> "GestionStatistiques" : <<import>>
 "GestionStatistiques" ..> "Données" : <<import>>
+"Serveur" ..> "Données" : <<use>>
+"Serveur" ..> "Logique du jeu" : <<import>>
+
+
+
 
 @enduml
-
