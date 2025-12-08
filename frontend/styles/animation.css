@@ -1,0 +1,229 @@
+/* Animations pour la Bataille Navale */
+
+/* Animation d'explosion pour les tirs réussis */
+@keyframes explosion {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  10% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  40% {
+    transform: scale(1.5) rotate(45deg);
+    opacity: 0.9;
+  }
+  70% {
+    transform: scale(1.8) rotate(90deg);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(2) rotate(135deg);
+    opacity: 0;
+  }
+}
+
+/* Particules d'explosion */
+@keyframes explosion-particles {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Animation de splash (éclaboussure d'eau) pour les tirs manqués */
+@keyframes splash {
+  0% {
+    transform: translateY(0) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    transform: translateY(-10px) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-5px) scale(1.2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(0) scale(0.8);
+    opacity: 0;
+  }
+}
+
+/* Gouttes d'eau qui tombent */
+@keyframes water-drop {
+  0% {
+    transform: translateY(-20px) scale(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(0) scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(20px) scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* Animation de pulsation pour les cases touchées */
+@keyframes pulse-hit {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 20px 10px rgba(239, 68, 68, 0);
+  }
+}
+
+/* Animation d'onde de choc */
+@keyframes shockwave {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* Effet de fumée montante */
+@keyframes smoke {
+  0% {
+    transform: translateY(0) scale(0.5);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-30px) scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Classes utilitaires pour les animations */
+.animate-explosion {
+  animation: explosion 0.6s ease-out forwards;
+}
+
+.animate-splash {
+  animation: splash 0.8s ease-out forwards;
+}
+
+.animate-pulse-hit {
+  animation: pulse-hit 1s ease-in-out infinite;
+}
+
+.animate-shockwave {
+  animation: shockwave 0.6s ease-out forwards;
+}
+
+.animate-smoke {
+  animation: smoke 1s ease-out forwards;
+}
+
+/* Conteneur pour les effets de particules */
+.explosion-container {
+  position: absolute;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.explosion-particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle, #ff4444 0%, #ff8800 50%, transparent 100%);
+  border-radius: 50%;
+  animation: explosion-particles 0.8s ease-out forwards;
+}
+
+.splash-container {
+  position: absolute;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.water-droplet {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: radial-gradient(circle, #60a5fa 0%, #3b82f6 50%, transparent 100%);
+  border-radius: 50%;
+  animation: water-drop 0.6s ease-out forwards;
+}
+
+/* Effet de glow pour les explosions */
+.explosion-glow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 68, 68, 0.8) 0%, rgba(255, 136, 0, 0.4) 40%, transparent 70%);
+  animation: explosion 0.5s ease-out forwards;
+}
+
+/* Effet de ripple pour l'eau */
+.water-ripple {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid rgba(96, 165, 250, 0.6);
+  animation: shockwave 0.8s ease-out forwards;
+}
+
+/* Animation de clignotement pour les navires coulés */
+@keyframes blink-sunk {
+  0%, 100% {
+    opacity: 1;
+    background-color: rgba(239, 68, 68, 0.9);
+  }
+  50% {
+    opacity: 0.3;
+    background-color: rgba(127, 29, 29, 0.9);
+  }
+}
+
+.animate-blink-sunk {
+  animation: blink-sunk 0.5s ease-in-out 3;
+}
+
+/* Animation de tremblement pour l'impact */
+@keyframes shake {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  10% { transform: translate(-2px, -2px) rotate(-2deg); }
+  20% { transform: translate(2px, 2px) rotate(2deg); }
+  30% { transform: translate(-2px, 2px) rotate(-1deg); }
+  40% { transform: translate(2px, -2px) rotate(1deg); }
+  50% { transform: translate(-2px, -2px) rotate(-2deg); }
+  60% { transform: translate(2px, 2px) rotate(2deg); }
+  70% { transform: translate(-2px, 2px) rotate(-1deg); }
+  80% { transform: translate(2px, -2px) rotate(1deg); }
+  90% { transform: translate(-2px, -2px) rotate(0deg); }
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* Animation de fondu entrant pour les messages */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
