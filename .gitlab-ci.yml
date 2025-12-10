@@ -17,7 +17,7 @@ cache:
 
 test_backend:
   stage: test
-  image: python:3.9
+  image: python:3.11
   before_script:
     - cd backend
     - pip install --upgrade pip
@@ -43,6 +43,10 @@ test_backend:
     paths:
       - backend/htmlcov/
     expire_in: 30 days
+  only:
+    - main
+    - develop
+    - merge_requests
 
 # ============= TESTS FRONTEND (Optionnel) =============
 
@@ -62,17 +66,13 @@ test_frontend:
     paths:
       - frontend/build/
     expire_in: 7 days
-  only:
-    - main
-    - develop
-    - merge_requests
   allow_failure: true
 
 # ============= BUILD (Optionnel) =============
 
 build_project:
   stage: build
-  image: python:3.9
+  image: python:3.11
   script:
     - echo "Build du projet réussi !"
     - echo "Tous les tests sont passés avec succès."
