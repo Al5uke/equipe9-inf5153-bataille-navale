@@ -52,7 +52,7 @@ test_backend:
 
 test_frontend:
   stage: test
-  image: node:18
+  image: node:20
   before_script:
     - cd frontend
     - yarn install --frozen-lockfile
