@@ -43,10 +43,6 @@ test_backend:
     paths:
       - backend/htmlcov/
     expire_in: 30 days
-  only:
-    - main
-    - develop
-    - merge_requests
 
 # ============= TESTS FRONTEND (Optionnel) =============
 
@@ -80,7 +76,5 @@ build_project:
   script:
     - echo "Build du projet réussi !"
     - echo "Tous les tests sont passés avec succès."
-  only:
-    - main
   dependencies:
     - test_backend
