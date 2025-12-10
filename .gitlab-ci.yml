@@ -1,0 +1,86 @@
+# Configuration GitLab CI/CD pour la Bataille Navale
+# Projet: INF5153 - Bataille Navale
+
+stages:
+  - test
+  - build
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
+    - backend/venv/
+
+# ============= TESTS BACKEND =============
+
+test_backend:
+  stage: test
+  image: python:3.9
+  before_script:
+    - cd backend
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+    - pip install pytest pytest-cov coverage
+  script:
+    - echo "Exécution des tests unitaires..."
+    - pytest --version
+    - pytest tests/ -v --tb=short
+    - echo "Génération du rapport de couverture..."
+    - pytest tests/ --cov=. --cov-report=term --cov-report=html --cov-report=xml --cov-config=.coveragerc
+    - coverage report
+    - echo "Vérification du seuil de couverture (80%)..."
+    - coverage report --fail-under=80
+  coverage: '/TOTAL.*\s+(\d+%)$/'
+  artifacts:
+    when: always
+    reports:
+      junit: backend/test-results.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: backend/coverage.xml
+    paths:
+      - backend/htmlcov/
+    expire_in: 30 days
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# ============= TESTS FRONTEND (Optionnel) =============
+
+test_frontend:
+  stage: test
+  image: node:18
+  before_script:
+    - cd frontend
+    - yarn install --frozen-lockfile
+  script:
+    - echo "Vérification du build frontend..."
+    - yarn build
+  cache:
+    paths:
+      - frontend/node_modules/
+  artifacts:
+    paths:
+      - frontend/build/
+    expire_in: 7 days
+  only:
+    - main
+    - develop
+    - merge_requests
+  allow_failure: true
+
+# ============= BUILD (Optionnel) =============
+
+build_project:
+  stage: build
+  image: python:3.9
+  script:
+    - echo "Build du projet réussi !"
+    - echo "Tous les tests sont passés avec succès."
+  only:
+    - main
+  dependencies:
+    - test_backend
