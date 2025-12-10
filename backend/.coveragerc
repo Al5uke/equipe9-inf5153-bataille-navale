@@ -1,0 +1,36 @@
+[run]
+# Configuration Coverage.py
+source = .
+omit =
+    */tests/*
+    */test_*.py
+    */__pycache__/*
+    */venv/*
+    */env/*
+    */site-packages/*
+    server.py
+    database.py
+
+[report]
+# Exclusions dans les rapports
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise AssertionError
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    if TYPE_CHECKING:
+    @abstractmethod
+
+# Précision
+precision = 2
+
+# Afficher les lignes manquantes
+show_missing = True
+
+# Ignorer les erreurs
+ignore_errors = True
+
+[html]
+# Dossier pour le rapport HTML
+directory = htmlcov
