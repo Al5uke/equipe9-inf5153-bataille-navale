@@ -105,3 +105,5 @@ frontend/.env
 # Environment files
 *.env
 *.env.*
+
+package-lock.json
