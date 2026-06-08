@@ -18,23 +18,25 @@ node_modules/
 # Testing
 /coverage
 
-# Next.js
-/.next/
-/out/
-next-env.d.ts
-*.tsbuildinfo
-
 # Production builds
 /build
 dist/
-dist
 
-# Environment files (comprehensive coverage)
-
+# Environment files
+.env
+.env.local
+.env.*
+backend/.env
+frontend/.env
 *token.json*
 *credentials.json*
 
-# Logs and debug files
+# Autoriser les fichiers d'exemple
+!.env.example
+!backend/.env.example
+!frontend/.env.example
+
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -60,9 +62,6 @@ chainlit.md
 # Deployment
 .vercel
 
-# Data and databases
-agenthub/agents/youtube/db
-
 # Archive files and large assets
 **/*.zip
 **/*.tar.gz
@@ -75,9 +74,6 @@ agenthub/agents/youtube/db
 # Build caches
 .cache/
 
-# Mobile development
-android-sdk/
-
 # Bataille Navale - Bases de données
 *.db
 *.sqlite
@@ -85,25 +81,9 @@ android-sdk/
 bataille_navale.db
 battleship.db
 
-# Bataille Navale - Environnement
-.env
-.env.local
-backend/.env
-frontend/.env
-
 # Bataille Navale - Logs
 /var/log/
-*.log-e
-# Environment files
-*.env
-*.env.*
--e
-# Environment files
-*.env
-*.env.*
--e
-# Environment files
-*.env
-*.env.*
+*.log
 
+# Package managers
 package-lock.json
